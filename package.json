@@ -39,7 +39,7 @@
     "through2": "^3.0.0",
     "ts-jest": "^24.0.0",
     "tslint": "^5.13.0",
-    "typescript": "^3.1.2",
+    "typescript": "^3.4.5",
     "typescript-fsa": "^3.0.0-beta-2",
     "vinyl-fs": "^3.0.3"
   },

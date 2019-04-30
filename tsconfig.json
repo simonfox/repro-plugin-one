@@ -1,21 +1,18 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "target": "es5",
     "module": "amd",
     "declaration": true,
     "noImplicitAny": false,
     "removeComments": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": true,
-    "sourceMap": true,
-    "target": "es5",
+    "moduleResolution": "node",
     "lib": [
       "es2017",
       "dom"
-    ],
-    "moduleResolution": "node",
-    "allowJs": false,
-    "baseUrl": "src"
+    ]
   },
   "exclude": [
     "dist",

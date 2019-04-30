@@ -4,13 +4,13 @@ import * as notify from 'gulp-notify';
 import * as rename from 'gulp-rename';
 import * as ts from 'gulp-typescript';
 import * as project from '../aurelia.json';
-import {CLIOptions, build} from 'aurelia-cli';
+import { CLIOptions, build } from 'aurelia-cli';
 import * as merge2 from 'merge2';
 
 function configureEnvironment() {
   let env = CLIOptions.getEnvironment();
 
-  return gulp.src(`aurelia_project/environments/${env}.ts`, {since: gulp.lastRun(configureEnvironment)})
+  return gulp.src(`aurelia_project/environments/${env}.ts`, { since: gulp.lastRun(configureEnvironment) })
     .pipe(rename('environment.ts'))
     .pipe(gulp.dest(project.paths.root));
 }
@@ -42,7 +42,7 @@ export function buildPluginJavaScript(dest, format) {
   return function processPluginJavaScript() {
     typescriptCompiler = ts.createProject('tsconfig.json', {
       typescript: require('typescript'),
-      module: format
+      module: "amd"
     });
     return gulp.src(project.transpiler.dtsSource)
       .pipe(gulp.src(project.plugin.source.js))
