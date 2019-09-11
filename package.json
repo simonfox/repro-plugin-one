@@ -51,6 +51,6 @@
     "typescript-fsa": "^3.0.0-beta-2"
   },
   "dependencies": {
-    "plugin-two": "git+ssh://git@github.com:simonfox/repro-plugin-two.git"
+    "plugin-two": "https://github.com/simonfox/repro-plugin-two.git"
   }
 }
