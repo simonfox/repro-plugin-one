@@ -34955,6 +34955,76 @@ module.exports = require('../internals/path');
 
 });
 ;
+define('plugin-two/dist/commonjs/constants',['require','exports','module'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PLUGIN_NAME = "plugin-two";
+exports.PLUGIN_FEATURES_PATH = exports.PLUGIN_NAME + "/features";
+
+});
+;
+define('plugin-two/dist/commonjs/features/feature-one/actions',['require','exports','module','typescript-fsa','./constants'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var typescript_fsa_1 = require("typescript-fsa");
+var constants_1 = require("./constants");
+var actionCreator = typescript_fsa_1.actionCreatorFactory(constants_1.FEATURE_REDUCER_KEY);
+var featureOne = actionCreator("feature-one");
+exports.default = {
+    featureOne: featureOne,
+};
+
+});
+;
+define('plugin-two/dist/commonjs/features/feature-one/constants',['require','exports','module','../../constants'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var constants_1 = require("../../constants");
+var feature = '/feature-one';
+exports.FEATURE_PATH = constants_1.PLUGIN_FEATURES_PATH + feature;
+exports.FEATURE_REDUCER_KEY = constants_1.PLUGIN_NAME + feature;
+
+});
+;
+define('plugin-two/dist/commonjs/features/feature-one/index',['require','exports','module','./actions','./constants'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var actions_1 = require("./actions");
+var constants_1 = require("./constants");
+function configure(config) {
+    console.log("configuring feature-one");
+}
+exports.configure = configure;
+exports.default = {
+    actions: actions_1.default,
+    path: constants_1.FEATURE_PATH,
+};
+
+});
+;
+define('plugin-two/dist/commonjs/features/index',['require','exports','module','./feature-one'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var feature_one_1 = require("./feature-one");
+function configure(config) {
+    config.feature(feature_one_1.default.path);
+}
+exports.configure = configure;
+exports.default = {
+    featureOne: feature_one_1.default,
+};
+
+});
+;
+define('plugin-two/dist/commonjs/index',['require','exports','module','./constants','./features/index'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var constants_1 = require("./constants");
+var index_1 = require("./features/index");
+function configure(config) {
+    config.feature(constants_1.PLUGIN_FEATURES_PATH);
+}
+exports.configure = configure;
+exports.default = {
+    features: index_1.default,
+};
+
+});
+;
 /**
  * @license text 2.0.15 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, http://github.com/requirejs/text/LICENSE
@@ -35364,6 +35434,79 @@ define('text/text',['module'], function (module) {
     return text;
 });
 ;
+define('typescript-fsa/lib/index',['require','exports','module'],function (require, exports, module) {"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Returns `true` if action has the same type as action creator.
+ * Defines Type Guard that lets TypeScript know `payload` type inside blocks
+ * where `isType` returned `true`.
+ *
+ * @example
+ *
+ *    const somethingHappened =
+ *      actionCreator<{foo: string}>('SOMETHING_HAPPENED');
+ *
+ *    if (isType(action, somethingHappened)) {
+ *      // action.payload has type {foo: string}
+ *    }
+ */
+function isType(action, actionCreator) {
+    return action.type === actionCreator.type;
+}
+exports.isType = isType;
+/**
+ * Creates Action Creator factory with optional prefix for action types.
+ * @param prefix Prefix to be prepended to action types as `<prefix>/<type>`.
+ * @param defaultIsError Function that detects whether action is error given the
+ *   payload. Default is `payload => payload instanceof Error`.
+ */
+function actionCreatorFactory(prefix, defaultIsError) {
+    if (defaultIsError === void 0) { defaultIsError = function (p) { return p instanceof Error; }; }
+    var actionTypes = {};
+    var base = prefix ? prefix + "/" : "";
+    function actionCreator(type, commonMeta, isError) {
+        if (isError === void 0) { isError = defaultIsError; }
+        var fullType = base + type;
+        if (process.env.NODE_ENV !== 'production') {
+            if (actionTypes[fullType])
+                throw new Error("Duplicate action type: " + fullType);
+            actionTypes[fullType] = true;
+        }
+        return Object.assign(function (payload, meta) {
+            var action = {
+                type: fullType,
+                payload: payload,
+            };
+            if (commonMeta || meta) {
+                action.meta = Object.assign({}, commonMeta, meta);
+            }
+            if (isError && (typeof isError === 'boolean' || isError(payload))) {
+                action.error = true;
+            }
+            return action;
+        }, {
+            type: fullType,
+            toString: function () { return fullType; },
+            match: function (action) {
+                return action.type === fullType;
+            },
+        });
+    }
+    function asyncActionCreators(type, commonMeta) {
+        return {
+            type: base + type,
+            started: actionCreator(type + "_STARTED", commonMeta, false),
+            done: actionCreator(type + "_DONE", commonMeta, false),
+            failed: actionCreator(type + "_FAILED", commonMeta, true),
+        };
+    }
+    return Object.assign(actionCreator, { async: asyncActionCreators });
+}
+exports.actionCreatorFactory = actionCreatorFactory;
+exports.default = actionCreatorFactory;
+
+});
+;
 define('aurelia-binding',['aurelia-binding/dist/commonjs/aurelia-binding'],function(m){return m;});
 define('aurelia-bootstrapper',['aurelia-bootstrapper/dist/commonjs/aurelia-bootstrapper'],function(m){return m;});
 define('aurelia-dependency-injection',['aurelia-dependency-injection/dist/commonjs/aurelia-dependency-injection'],function(m){return m;});
@@ -35434,12 +35577,23 @@ define('aurelia-testing/wait',['aurelia-testing/dist/commonjs/wait'],function(m)
 define('core-js/es',['core-js/es/index'],function(m){return m;});
 define('core-js/stable',['core-js/stable/index'],function(m){return m;});
 define('core-js/web',['core-js/web/index'],function(m){return m;});
+define('plugin-two',['plugin-two/dist/commonjs/index'],function(m){return m;});
+define('plugin-two/constants',['plugin-two/dist/commonjs/constants'],function(m){return m;});
+define('plugin-two/dist/commonjs/features/feature-one',['plugin-two/dist/commonjs/features/feature-one/index'],function(m){return m;});
+define('plugin-two/features/feature-one/actions',['plugin-two/dist/commonjs/features/feature-one/actions'],function(m){return m;});
+define('plugin-two/features/feature-one/constants',['plugin-two/dist/commonjs/features/feature-one/constants'],function(m){return m;});
+define('plugin-two/features/feature-one/index',['plugin-two/dist/commonjs/features/feature-one/index'],function(m){return m;});
+define('plugin-two/features/index',['plugin-two/dist/commonjs/features/index'],function(m){return m;});
+define('plugin-two/index',['plugin-two/dist/commonjs/index'],function(m){return m;});
 define('resources',['resources/index'],function(m){return m;});
-define('resources/elements/hello-world',['__dot_dot__/src/elements/hello-world'],function(m){return m;});
-define('text!resources/elements/hello-world.css',['text!__dot_dot__/src/elements/hello-world.css'],function(m){return m;});
-define('text!resources/elements/hello-world.html',['text!__dot_dot__/src/elements/hello-world.html'],function(m){return m;});
+define('resources/constants',['__dot_dot__/src/constants'],function(m){return m;});
+define('resources/features/feature-one/actions',['__dot_dot__/src/features/feature-one/actions'],function(m){return m;});
+define('resources/features/feature-one/constants',['__dot_dot__/src/features/feature-one/constants'],function(m){return m;});
+define('resources/features/feature-one/index',['__dot_dot__/src/features/feature-one/index'],function(m){return m;});
+define('resources/features/index',['__dot_dot__/src/features/index'],function(m){return m;});
 define('resources/index',['__dot_dot__/src/index'],function(m){return m;});
-define('text',['text/text'],function(m){return m;});;
+define('text',['text/text'],function(m){return m;});
+define('typescript-fsa',['typescript-fsa/lib/index'],function(m){return m;});;
 function _aureliaConfigureModuleLoader(){requirejs.config({
   "baseUrl": "dev-app",
   "paths": {
@@ -35456,9 +35610,11 @@ function _aureliaConfigureModuleLoader(){requirejs.config({
   "shim": {},
   "bundles": {
     "app-bundle": [
-      "__dot_dot__/src/elements/hello-world",
-      "text!__dot_dot__/src/elements/hello-world.css",
-      "text!__dot_dot__/src/elements/hello-world.html",
+      "__dot_dot__/src/constants",
+      "__dot_dot__/src/features/feature-one/actions",
+      "__dot_dot__/src/features/feature-one/constants",
+      "__dot_dot__/src/features/feature-one/index",
+      "__dot_dot__/src/features/index",
       "__dot_dot__/src/index",
       "app",
       "text!app.html",
